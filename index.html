@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Produção &amp; Transferência · XPRO33</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon-main-192.png">
+<link rel="apple-touch-icon" href="icon-main-192.png">
+<meta name="theme-color" content="#20241F">
+<style>
+  :root{
+    --bg:#F3F1EC;
+    --paper:#FFFFFF;
+    --ink:#20241F;
+    --ink-soft:#5B6058;
+    --line:#DEDAD0;
+    --caxias:#B5501C;
+    --caxias-bg:#FBEEE4;
+    --sjm:#1D6E63;
+    --sjm-bg:#E7F2EF;
+    --sede:#2C3A63;
+    --sede-bg:#EAECF3;
+    --ok:#1D6E63;
+    --warn:#B5501C;
+    --pend:#8A8578;
+    --radius:14px;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    min-height:100vh;
+    padding-bottom:84px;
+  }
+  .num{font-family:"SF Mono",ui-monospace,"Roboto Mono",Menlo,Consolas,monospace; font-variant-numeric:tabular-nums;}
+
+  header.top{
+    background:var(--ink);
+    color:#F3F1EC;
+    padding:22px 20px 18px;
+    position:sticky; top:0; z-index:20;
+  }
+  header.top h1{margin:0; font-size:19px; font-weight:700; letter-spacing:-0.01em;}
+  header.top p{margin:4px 0 0; font-size:12.5px; color:#B7BBB1;}
+
+  .flow{
+    display:flex; align-items:center; gap:6px;
+    padding:14px 20px 4px; overflow-x:auto;
+    background:var(--ink);
+  }
+  .flow-node{
+    flex:0 0 auto;
+    font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.03em;
+    padding:7px 11px; border-radius:20px; color:#20241F;
+    white-space:nowrap;
+  }
+  .flow-node.caxias{background:#E8A97E;}
+  .flow-node.sjm{background:#9FD3C7;}
+  .flow-node.sede{background:#C7CCE0;}
+  .flow-arrow{flex:0 0 auto; color:#6B6F65; font-size:13px;}
+
+  main{padding:16px 16px 8px; max-width:640px; margin:0 auto;}
+  section.tab{display:none;}
+  section.tab.active{display:block;}
+
+  .card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:16px;
+    margin-bottom:14px;
+  }
+  .card h2{margin:0 0 12px; font-size:15px; font-weight:700;}
+  .card h2 .sub{display:block; font-weight:500; color:var(--ink-soft); font-size:12px; margin-top:2px;}
+
+  label{display:block; font-size:12px; font-weight:600; color:var(--ink-soft); margin:12px 0 5px;}
+  label:first-of-type{margin-top:0;}
+  input, select{
+    width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:10px;
+    font-size:15px; background:#FBFAF8; color:var(--ink); font-family:inherit;
+  }
+  input:focus, select:focus{outline:none; border-color:var(--ink);}
+  .row2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .row3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;}
+
+  .btn{
+    width:100%; padding:13px; margin-top:16px; border:none; border-radius:10px;
+    background:var(--ink); color:#F3F1EC; font-size:14.5px; font-weight:700;
+    cursor:pointer;
+  }
+  .btn:active{opacity:.85;}
+  .btn.secondary{background:transparent; border:1px solid var(--line); color:var(--ink); font-weight:600;}
+
+  .seg{display:flex; border:1px solid var(--line); border-radius:10px; overflow:hidden;}
+  .seg button{
+    flex:1; padding:10px 6px; border:none; background:#FBFAF8; color:var(--ink-soft);
+    font-size:13px; font-weight:700; cursor:pointer; border-right:1px solid var(--line);
+  }
+  .seg button:last-child{border-right:none;}
+  .seg button.active{background:var(--ink); color:#F3F1EC;}
+
+  .entry{
+    padding:12px 0; border-bottom:1px solid var(--line);
+  }
+  .entry:last-child{border-bottom:none;}
+  .entry-top{display:flex; justify-content:space-between; align-items:baseline; gap:8px;}
+  .entry-title{font-weight:700; font-size:14.5px;}
+  .entry-qty{font-weight:700; font-size:14.5px;}
+  .entry-actions{display:flex; align-items:center; gap:10px;}
+  .entry-del{
+    background:none; border:none; padding:2px; cursor:pointer; color:var(--ink-soft);
+    font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.02em; text-decoration:underline;
+  }
+  .entry-del:active{color:var(--caxias);}
+  .entry-meta{font-size:12px; color:var(--ink-soft); margin-top:3px; display:flex; flex-wrap:wrap; gap:6px 10px;}
+  .tag{
+    display:inline-block; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.03em;
+    padding:2px 7px; border-radius:20px;
+  }
+  .tag.caxias{background:var(--caxias-bg); color:var(--caxias);}
+  .tag.sjm{background:var(--sjm-bg); color:var(--sjm);}
+  .tag.sede{background:var(--sede-bg); color:var(--sede);}
+  .tag.status-pendente{background:#F0EEE7; color:var(--pend);}
+  .tag.status-transito{background:#FBEEE4; color:var(--caxias);}
+  .tag.status-recebido{background:#E7F2EF; color:var(--sjm);}
+  .tag.status-aguardando{background:#EAECF3; color:var(--sede);}
+
+  .empty{padding:24px 4px; text-align:center; color:var(--ink-soft); font-size:13.5px;}
+
+  .stock-card{border-radius:var(--radius); padding:16px; margin-bottom:14px; color:#fff;}
+  .stock-card.caxias{background:var(--caxias);}
+  .stock-card.sjm{background:var(--sjm);}
+  .stock-card .label{font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; opacity:.85;}
+  .stock-card .total{font-size:30px; font-weight:800; margin:4px 0 2px;}
+  .stock-card .sub{font-size:12px; opacity:.8;}
+  .stock-list{margin-top:12px; border-top:1px solid rgba(255,255,255,.25); padding-top:10px;}
+  .stock-row{display:flex; justify-content:space-between; font-size:13px; padding:4px 0;}
+  .stock-adjust{
+    background:rgba(255,255,255,.18); border:none; color:#fff; font-size:10px; font-weight:700;
+    text-transform:uppercase; letter-spacing:.02em; padding:3px 8px; border-radius:20px; cursor:pointer;
+  }
+  .stock-adjust:active{background:rgba(255,255,255,.32);}
+
+  .sede-card{background:var(--sede-bg); border-radius:var(--radius); padding:16px; margin-bottom:14px;}
+  .sede-card .label{font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--sede);}
+  .sede-card .note{font-size:12px; color:var(--ink-soft); margin-top:4px; line-height:1.4;}
+
+  nav.tabs{
+    position:fixed; bottom:0; left:0; right:0;
+    background:var(--paper); border-top:1px solid var(--line);
+    display:flex; padding:6px 8px calc(6px + env(safe-area-inset-bottom));
+    z-index:30;
+  }
+  nav.tabs button{
+    flex:1; background:none; border:none; padding:9px 4px 6px; cursor:pointer;
+    color:var(--ink-soft); display:flex; flex-direction:column; align-items:center; gap:3px;
+    font-size:11px; font-weight:700;
+  }
+  nav.tabs button.active{color:var(--ink);}
+  nav.tabs button svg{width:20px; height:20px;}
+
+  .toast{
+    position:fixed; bottom:90px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--ink); color:#F3F1EC; padding:10px 18px; border-radius:30px;
+    font-size:13px; font-weight:600; opacity:0; transition:all .25s ease; z-index:50; pointer-events:none;
+    white-space:nowrap;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  .filter-bar{display:flex; gap:8px; margin-bottom:12px;}
+  .filter-bar select, .filter-bar input{background:var(--paper);}
+
+  .produto-row{display:flex; gap:8px; align-items:center; margin-bottom:8px;}
+  .produto-row select{flex:1 1 auto; min-width:0;}
+  .produto-row input{flex:0 0 82px; text-align:right;}
+  .produto-row .row-remove{
+    flex:0 0 auto; width:34px; height:34px; border:1px solid var(--line); border-radius:8px;
+    background:#FBFAF8; color:var(--ink-soft); font-size:16px; cursor:pointer;
+  }
+
+  datalist{}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+    <div>
+      <h1>Produção &amp; Transferência</h1>
+      <p>Caxias · São João de Meriti · Sede</p>
+    </div>
+    <div id="user-badge" style="display:none; text-align:right;">
+      <div style="font-size:12px; font-weight:700;" id="user-badge-nome"></div>
+      <button id="btn-logout" style="background:none; border:none; color:#B7BBB1; font-size:11px; text-decoration:underline; padding:2px 0; cursor:pointer;">Sair</button>
+    </div>
+  </div>
+</header>
+
+<div id="login-overlay" style="display:none; position:fixed; inset:0; background:rgba(32,36,31,.92); z-index:60; align-items:center; justify-content:center; padding:20px;">
+  <div style="background:#FFFFFF; border-radius:16px; padding:22px; width:100%; max-width:340px;">
+    <h2 style="margin:0 0 4px; font-size:16px;">Acesso restrito</h2>
+    <p style="margin:0 0 16px; font-size:12.5px; color:#5B6058;">Produção e Estoque exigem identificação.</p>
+    <label>Nome</label>
+    <select id="login-nome"></select>
+    <label>PIN (4 dígitos)</label>
+    <input id="login-pin" type="password" inputmode="numeric" maxlength="4" placeholder="••••">
+    <div id="login-erro" style="color:#B5501C; font-size:12.5px; margin-top:8px; display:none;">PIN incorreto.</div>
+    <button id="btn-login" class="btn">Entrar</button>
+    <button id="btn-login-cancelar" class="btn secondary">Cancelar</button>
+  </div>
+</div>
+
+<div id="confirm-save-overlay" style="display:none; position:fixed; inset:0; background:rgba(32,36,31,.92); z-index:60; align-items:center; justify-content:center; padding:20px;">
+  <div style="background:#FFFFFF; border-radius:16px; padding:22px; width:100%; max-width:360px;">
+    <h2 style="margin:0 0 4px; font-size:16px;" id="confirm-save-titulo">Confirmar lançamento</h2>
+    <p style="margin:0 0 14px; font-size:12.5px; color:#5B6058;">Confira antes de gravar.</p>
+    <div id="confirm-save-resumo" style="background:#F7F6F2; border-radius:10px; padding:12px 14px; font-size:13.5px; line-height:1.9;"></div>
+    <button id="btn-confirm-save" class="btn">Confirmar e gravar</button>
+    <button id="btn-confirm-save-cancelar" class="btn secondary">Voltar e corrigir</button>
+  </div>
+</div>
+
+<div class="flow">
+  <span class="flow-node caxias">Caxias</span>
+  <span class="flow-arrow">→</span>
+  <span class="flow-node sjm">SJM (rótulo)</span>
+  <span class="flow-arrow">→</span>
+  <span class="flow-node sede">Sede</span>
+  <span class="flow-arrow" style="margin-left:10px;">·</span>
+  <span class="flow-node caxias">Caxias</span>
+  <span class="flow-arrow">→</span>
+  <span class="flow-node sede">Sede</span>
+  <span class="flow-arrow" style="margin-left:10px;">·</span>
+  <span class="flow-node sjm">SJM</span>
+  <span class="flow-arrow">→</span>
+  <span class="flow-node sede">Sede</span>
+</div>
+
+<main>
+
+  <!-- ===== PRODUÇÃO ===== -->
+  <section class="tab" id="tab-producao">
+    <div class="card">
+      <h2>Lançar produção do dia<span class="sub">Cada turno lança sua própria produção</span></h2>
+      <form id="form-producao">
+        <label>Unidade</label>
+        <div class="seg" id="prod-unidade-seg">
+          <button type="button" data-val="Caxias" class="active">Caxias</button>
+          <button type="button" data-val="SJM">São João de Meriti</button>
+        </div>
+
+        <label>Turno</label>
+        <div class="seg" id="prod-turno-seg">
+          <button type="button" data-val="1" class="active">1º turno</button>
+          <button type="button" data-val="2">2º turno</button>
+          <button type="button" data-val="3">3º turno</button>
+        </div>
+
+        <label>Líder responsável</label>
+        <div id="prod-lider-display" style="padding:11px 12px; background:#F0EEE7; border-radius:10px; font-size:15px; font-weight:600;">—</div>
+
+        <div class="row2">
+          <div>
+            <label for="prod-data">Data</label>
+            <input id="prod-data" type="date" required>
+          </div>
+          <div>
+            <label for="prod-qtd">Quantidade</label>
+            <input id="prod-qtd" type="number" step="0.01" min="0" placeholder="0" required>
+          </div>
+        </div>
+
+        <label for="prod-produto">Produto</label>
+        <input type="text" id="prod-produto" list="datalist-produtos" placeholder="Digite parte do nome..." autocomplete="off" required>
+        <datalist id="datalist-produtos"></datalist>
+
+        <button type="submit" class="btn">Lançar produção</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Lançamentos recentes</h2>
+      <div class="filter-bar">
+        <select id="prod-filtro-unidade">
+          <option value="">Todas as unidades</option>
+          <option value="Caxias">Caxias</option>
+          <option value="SJM">São João de Meriti</option>
+        </select>
+      </div>
+      <div id="lista-producao"><div class="empty">Carregando…</div></div>
+    </div>
+  </section>
+
+  <!-- ===== TRANSFERÊNCIAS ===== -->
+  <section class="tab" id="tab-transferencias">
+    <div class="card">
+      <h2>Registrar transferência<span class="sub">Saída de material entre unidades</span></h2>
+      <form id="form-transferencia">
+        <label>Tipo de envio</label>
+        <div class="seg" id="trf-tipoenvio-seg">
+          <button type="button" data-val="normal" class="active">Transferência</button>
+          <button type="button" data-val="devolucao">Devolução de cliente</button>
+        </div>
+        <div id="trf-devolucao-nota" class="entry-meta" style="display:none; margin-top:6px;">
+          <span class="tag sede">Caxias → Sede</span>
+          <span>Não desconta o estoque de Caxias · passa pela conferência normal da Sede</span>
+        </div>
+
+        <div id="trf-origem-wrap">
+          <label>Origem</label>
+          <div class="seg" id="trf-origem-seg">
+            <button type="button" data-val="Caxias" class="active">Caxias</button>
+            <button type="button" data-val="SJM">São João de Meriti</button>
+          </div>
+        </div>
+
+        <div id="trf-destino-wrap">
+          <label for="trf-destino">Destino</label>
+          <select id="trf-destino"></select>
+          <div id="trf-tipo-hint" class="entry-meta" style="margin-top:6px;"></div>
+        </div>
+
+        <div class="row2">
+          <div>
+            <label for="trf-data">Data</label>
+            <input id="trf-data" type="date" required>
+          </div>
+          <div>
+            <label for="trf-hora">Hora</label>
+            <input id="trf-hora" type="time" required>
+          </div>
+        </div>
+
+        <label for="trf-motorista">Motorista</label>
+        <input id="trf-motorista" type="text" placeholder="Nome" required>
+
+        <label>Produtos deste envio</label>
+        <div id="trf-produtos-rows"></div>
+        <button type="button" id="btn-add-produto" class="btn secondary" style="margin-top:8px;">+ Adicionar produto</button>
+
+        <button type="submit" class="btn">Registrar transferência</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Transferências recentes</h2>
+      <div id="lista-transferencias"><div class="empty">Carregando…</div></div>
+    </div>
+  </section>
+
+  <!-- ===== ESTOQUE ===== -->
+  <section class="tab" id="tab-estoque">
+    <div class="stock-card caxias">
+      <div class="label">Saldo em Caxias</div>
+      <div class="total num" id="saldo-caxias-total">0</div>
+      <div class="sub">produzido − transferido para fora</div>
+      <div class="stock-list" id="saldo-caxias-lista"></div>
+    </div>
+
+    <div class="stock-card sjm">
+      <div class="label">Saldo em São João de Meriti</div>
+      <div class="total num" id="saldo-sjm-total">0</div>
+      <div class="sub">produzido + recebido de Caxias − enviado à Sede</div>
+      <div class="stock-list" id="saldo-sjm-lista"></div>
+    </div>
+
+    <div class="sede-card">
+      <div class="label">Extrato de recebimentos · Sede</div>
+      <div class="note">A sede não tem saldo fechado: as saídas de expedição (ex: Shopee) ainda não são controladas aqui. Abaixo, apenas o total já conferido pela equipe da Sede (o que está aguardando conferência não entra na conta ainda).</div>
+      <div class="stock-list" id="saldo-sede-lista" style="border-top:1px solid var(--line); margin-top:12px; padding-top:10px;"></div>
+      <div style="font-size:11px; color:var(--ink-soft); margin-top:10px;" id="saldo-sede-pendente-nota"></div>
+    </div>
+
+    <div class="card" id="card-add-usuario-fabrica">
+      <h2>Adicionar usuário<span class="sub">Cria acesso com nome + PIN de 4 dígitos — só Admin</span></h2>
+      <label for="novo-usuario-nome">Nome</label>
+      <input id="novo-usuario-nome" type="text" placeholder="Nome completo">
+      <label for="novo-usuario-pin">PIN (4 dígitos)</label>
+      <input id="novo-usuario-pin" type="text" inputmode="numeric" maxlength="4" placeholder="••••">
+      <label for="novo-usuario-perfil">Área de acesso</label>
+      <select id="novo-usuario-perfil">
+        <option value="fabrica">Fábrica (Produção / Transferências / Estoque)</option>
+        <option value="sede">Sede (Conferência)</option>
+        <option value="admin">Admin (acesso completo)</option>
+      </select>
+      <button type="button" id="btn-add-usuario-fabrica" class="btn">Adicionar usuário</button>
+    </div>
+
+    <div class="card" id="card-lista-usuarios-fabrica">
+      <h2>Usuários cadastrados<span class="sub">Todos os perfis — editar PIN, trocar área ou remover — só Admin</span></h2>
+      <div id="lista-usuarios-fabrica"><div class="empty">Carregando…</div></div>
+    </div>
+  </section>
+
+  <!-- ===== LOG ===== -->
+  <section class="tab" id="tab-log">
+    <div class="card">
+      <h2>Atividade recente<span class="sub">Quem lançou o quê, para rastrear divergências</span></h2>
+      <div id="lista-log"><div class="empty">Carregando…</div></div>
+    </div>
+  </section>
+
+  <!-- ===== SEDE (conferência) ===== -->
+  <section class="tab" id="tab-sede">
+    <div class="card" id="card-corrigir-legado" style="display:none; border-color:var(--caxias);">
+      <h2>Corrigir registros antigos<span class="sub">Envios pra Sede que entraram como "Recebido" antes da conferência existir — só Admin</span></h2>
+      <div id="contagem-legado" class="entry-meta" style="margin-bottom:10px;"></div>
+      <button type="button" id="btn-corrigir-legado" class="btn secondary">Mover para "Aguardando conferência"</button>
+    </div>
+
+    <div class="card">
+      <h2>Aguardando conferência<span class="sub">Confira a carga e confirme a quantidade recebida</span></h2>
+      <div id="lista-conferencia-pendente"><div class="empty">Carregando…</div></div>
+    </div>
+
+    <div class="card">
+      <h2>Conferidas recentemente</h2>
+      <div id="lista-conferencia-feita"><div class="empty">Carregando…</div></div>
+    </div>
+
+    <div class="card">
+      <h2>Devoluções de clientes<span class="sub">Não descontam Caxias, mas também passam pela conferência</span></h2>
+      <div id="lista-devolucoes"><div class="empty">Carregando…</div></div>
+    </div>
+
+    <div class="card" id="card-add-usuario-sede">
+      <h2>Adicionar usuário da Sede<span class="sub">Cria acesso à conferência com nome + PIN — só Admin</span></h2>
+      <label for="novo-usuario-sede-nome">Nome</label>
+      <input id="novo-usuario-sede-nome" type="text" placeholder="Nome completo">
+      <label for="novo-usuario-sede-pin">PIN (4 dígitos)</label>
+      <input id="novo-usuario-sede-pin" type="text" inputmode="numeric" maxlength="4" placeholder="••••">
+      <button type="button" id="btn-add-usuario-sede" class="btn">Adicionar usuário</button>
+    </div>
+
+    <div class="card" id="card-lista-usuarios-sede">
+      <h2>Usuários da Sede<span class="sub">Editar PIN ou remover — só Admin</span></h2>
+      <div id="lista-usuarios-sede"><div class="empty">Carregando…</div></div>
+    </div>
+  </section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<nav class="tabs">
+  <button class="tab-btn" data-tab="tab-producao">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l4-4h10l4 4"/><path d="M3 7v13a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V7"/><path d="M9 21V12h6v9"/></svg>
+    Produção
+  </button>
+  <button class="tab-btn" data-tab="tab-transferencias">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3l4 4-4 4"/><path d="M20 7H4"/><path d="M8 21l-4-4 4-4"/><path d="M4 17h16"/></svg>
+    Transferências
+  </button>
+  <button class="tab-btn" data-tab="tab-estoque">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+    Estoque
+  </button>
+  <button class="tab-btn" data-tab="tab-log">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M8 9h8"/><path d="M8 13h8"/><path d="M8 17h5"/></svg>
+    Log
+  </button>
+  <button class="tab-btn" data-tab="tab-sede">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/></svg>
+    Sede
+  </button>
+</nav>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBEQ0pAsCBdDbo2RwcQlmD3jx6HteKfNC4",
+  authDomain: "folha-de-ponto-xpro.firebaseapp.com",
+  databaseURL: "https://folha-de-ponto-xpro-default-rtdb.firebaseio.com",
+  projectId: "folha-de-ponto-xpro",
+  storageBucket: "folha-de-ponto-xpro.firebasestorage.app",
+  messagingSenderId: "988072192165",
+  appId: "1:988072192165:web:590e4f9ff775bb18a2454c"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// ---------- corrige sincronização quando o app volta do segundo plano ----------
+// Android pode congelar a aba; ao voltar, força reconexão pra pegar dados frescos
+// em vez de esperar passivamente uma atualização que pode não chegar.
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState === 'visible'){
+    db.goOffline();
+    db.goOnline();
+  }
+});
+
+const refProducao = db.ref('producaoDiaria');
+const refTransferencias = db.ref('transferencias');
+const refProdutos = db.ref('estoqueProdutos/items');
+const refLog = db.ref('producaoLog');
+const refAjustes = db.ref('ajustesEstoque');
+const refUsuarios = db.ref('usuariosSistema');
+
+let producaoCache = {};
+let transferenciasCache = {};
+let logCache = {};
+let ajustesCache = {};
+let usuariosCache = {};
+
+// ---------- usuários autorizados (Produção/Estoque = perfil fábrica · Conferência = perfil sede) ----------
+// Semente inicial: só é usada se o banco ainda estiver vazio (primeira execução).
+const SEED_USUARIOS = [
+  { nome: 'Dyllon Dorneles', pin: '4821', perfil: 'fabrica' },
+  { nome: 'Wagner Reis', pin: '3067', perfil: 'fabrica' },
+  { nome: 'Jonathan Reis', pin: '5942', perfil: 'fabrica' },
+  { nome: 'Adriano Reis', pin: '7183', perfil: 'admin' },
+  { nome: 'Luis Claudio', pin: '2456', perfil: 'fabrica' },
+  { nome: 'Ana Luiza', pin: '8619', perfil: 'fabrica' }
+];
+refUsuarios.once('value').then(snap=>{
+  if(!snap.exists()){
+    const updates = {};
+    SEED_USUARIOS.forEach(u=>{ updates[refUsuarios.push().key] = u; });
+    refUsuarios.update(updates);
+  }
+}).catch(err=>{
+  showToast('Erro ao preparar usuários: ' + err.message + ' (verifique a regra usuariosSistema no Firebase)');
+});
+
+let sessaoUsuario = null;
+let tabPendente = null;
+
+const TAB_PERFIL = {
+  'tab-producao': 'fabrica',
+  'tab-transferencias': 'fabrica',
+  'tab-estoque': 'fabrica',
+  'tab-log': 'fabrica',
+  'tab-sede': 'sede'
+};
+function temAcesso(perfilUsuario, perfilNecessario){
+  return perfilUsuario === 'admin' || perfilUsuario === perfilNecessario;
+}
+function labelPerfil(p){
+  if(p === 'admin') return 'Admin';
+  if(p === 'sede') return 'Sede';
+  return 'Fábrica';
+}
+
+function popularLoginNome(){
+  loginNomeSel.innerHTML = '';
+  Object.values(usuariosCache)
+    .sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'))
+    .forEach(u=>{
+      const opt = document.createElement('option');
+      opt.value = u.nome;
+      opt.textContent = u.nome;
+      loginNomeSel.appendChild(opt);
+    });
+}
+refUsuarios.on('value', snap=>{
+  usuariosCache = snap.val() || {};
+  popularLoginNome();
+}, err=>{
+  showToast('Erro ao ler usuários: ' + err.message + ' (verifique a regra usuariosSistema no Firebase)');
+});
+
+function carregarSessao(){
+  const raw = localStorage.getItem('producaoSessao');
+  if(raw){
+    try{
+      sessaoUsuario = JSON.parse(raw);
+      if(sessaoUsuario && !sessaoUsuario.perfil){
+        sessaoUsuario.perfil = 'fabrica'; // sessão salva antes dos perfis existirem
+        localStorage.setItem('producaoSessao', JSON.stringify(sessaoUsuario));
+      }
+    }catch(e){ sessaoUsuario = null; }
+  }
+  atualizarBadgeUsuario();
+}
+function atualizarBadgeUsuario(){
+  const badge = document.getElementById('user-badge');
+  if(sessaoUsuario){
+    badge.style.display = 'block';
+    document.getElementById('user-badge-nome').textContent = `${sessaoUsuario.nome} · ${labelPerfil(sessaoUsuario.perfil)}`;
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+const loginNomeSel = document.getElementById('login-nome');
+
+function abrirLogin(){
+  document.getElementById('login-erro').style.display = 'none';
+  document.getElementById('login-pin').value = '';
+  document.getElementById('login-overlay').style.display = 'flex';
+}
+function fecharLogin(){
+  document.getElementById('login-overlay').style.display = 'none';
+  tabPendente = null;
+}
+document.getElementById('btn-login-cancelar').addEventListener('click', fecharLogin);
+document.getElementById('btn-login').addEventListener('click', ()=>{
+  const nome = loginNomeSel.value;
+  const pin = document.getElementById('login-pin').value.trim();
+  const usuario = Object.values(usuariosCache).find(u=>u.nome === nome && u.pin === pin);
+  if(!usuario){
+    document.getElementById('login-erro').style.display = 'block';
+    return;
+  }
+  sessaoUsuario = { nome: usuario.nome, perfil: usuario.perfil || 'fabrica' };
+  localStorage.setItem('producaoSessao', JSON.stringify(sessaoUsuario));
+  atualizarBadgeUsuario();
+  aplicarVisibilidadeNav();
+  registrarLog('Login', `Acesso à área ${labelPerfil(sessaoUsuario.perfil)}`);
+  fecharLogin();
+  if(tabPendente && temAcesso(sessaoUsuario.perfil, TAB_PERFIL[tabPendente])){
+    abrirTab(tabPendente);
+  } else {
+    abrirTab(primeiraAbaDoPerfil(sessaoUsuario.perfil));
+  }
+  tabPendente = null;
+  atualizarLiderDisplay();
+});
+document.getElementById('btn-logout').addEventListener('click', ()=>{
+  sessaoUsuario = null;
+  localStorage.removeItem('producaoSessao');
+  atualizarBadgeUsuario();
+  aplicarVisibilidadeNav();
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(s=>s.classList.remove('active'));
+  abrirLogin();
+});
+function atualizarLiderDisplay(){
+  document.getElementById('prod-lider-display').textContent = sessaoUsuario ? sessaoUsuario.nome : '—';
+}
+
+function registrarLog(acao, detalhe){
+  refLog.push({
+    usuario: sessaoUsuario ? sessaoUsuario.nome : 'Desconhecido',
+    acao, detalhe,
+    timestamp: Date.now()
+  });
+}
+
+// ---------- navegação por abas, restrita por perfil ----------
+function primeiraAbaDoPerfil(perfil){
+  return perfil === 'sede' ? 'tab-sede' : 'tab-producao';
+}
+function aplicarVisibilidadeNav(){
+  document.querySelectorAll('.tab-btn').forEach(b=>{
+    const perfilNecessario = TAB_PERFIL[b.dataset.tab];
+    const podeVer = sessaoUsuario && temAcesso(sessaoUsuario.perfil, perfilNecessario);
+    b.style.display = podeVer ? '' : 'none';
+  });
+  const ehAdmin = sessaoUsuario && sessaoUsuario.perfil === 'admin';
+  ['card-add-usuario-fabrica','card-lista-usuarios-fabrica','card-add-usuario-sede','card-lista-usuarios-sede','card-corrigir-legado'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.style.display = ehAdmin ? '' : 'none';
+  });
+}
+function abrirTab(tabId){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab === tabId));
+  document.querySelectorAll('.tab').forEach(s=>s.classList.toggle('active', s.id === tabId));
+  if(tabId === 'tab-producao') atualizarLiderDisplay();
+}
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const tabId = btn.dataset.tab;
+    const perfilNecessario = TAB_PERFIL[tabId];
+    if(!sessaoUsuario){
+      tabPendente = tabId;
+      abrirLogin();
+      return;
+    }
+    if(!temAcesso(sessaoUsuario.perfil, perfilNecessario)){
+      showToast('Seu usuário não tem acesso a essa área');
+      return;
+    }
+    abrirTab(tabId);
+  });
+});
+carregarSessao();
+aplicarVisibilidadeNav();
+if(sessaoUsuario){
+  abrirTab(primeiraAbaDoPerfil(sessaoUsuario.perfil));
+} else {
+  abrirLogin();
+}
+
+// ---------- util ----------
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function fmtDate(iso){
+  if(!iso) return '';
+  const [y,m,d] = iso.split('-');
+  return `${d}/${m}/${y.slice(2)}`;
+}
+function fmtNum(n){
+  return Number(n||0).toLocaleString('pt-BR', {maximumFractionDigits:2});
+}
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2200);
+}
+function unidadeLabel(u){
+  return u === 'SJM' ? 'São João de Meriti' : u;
+}
+function tagClass(u){
+  if(u === 'Caxias') return 'caxias';
+  if(u === 'SJM') return 'sjm';
+  if(u === 'Sede') return 'sede';
+  return '';
+}
+function statusClass(s){
+  if(s === 'Conferido' || s === 'Recebido') return 'status-recebido';
+  if(s === 'Aguardando conferência') return 'status-aguardando';
+  if(s === 'Em trânsito') return 'status-transito';
+  return 'status-pendente';
+}
+
+// ---------- segmented controls ----------
+function setupSeg(containerId){
+  const el = document.getElementById(containerId);
+  el.querySelectorAll('button').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      el.querySelectorAll('button').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      if(containerId === 'trf-origem-seg') atualizarDestino();
+    });
+  });
+}
+setupSeg('prod-unidade-seg');
+setupSeg('prod-turno-seg');
+setupSeg('trf-origem-seg');
+
+function segValue(containerId){
+  return document.querySelector(`#${containerId} button.active`).dataset.val;
+}
+
+// ---------- lista de produtos (cadastro compartilhado do ERP: estoqueProdutos) ----------
+let produtosPorCodigo = {};
+let produtosOrdenados = [];
+let produtosPorLabel = {};
+
+function labelProduto(p){
+  return p.familia ? `${p.codigo} · ${p.nome} · ${p.familia}` : `${p.codigo} · ${p.nome}`;
+}
+
+refProdutos.on('value', snap=>{
+  const val = snap.val() || {};
+  produtosPorCodigo = {};
+  produtosPorLabel = {};
+  produtosOrdenados = Object.entries(val)
+    .map(([key,p]) => {
+      if(!p) return null;
+      const codigo = p.codigo || p.código || p.code || key;
+      const nome = p.name || p.nome || p.produto || '';
+      const familia = p.familia || p.família || p.categoria || p.cat || '';
+      return { codigo: String(codigo), nome, familia };
+    })
+    .filter(p => p && p.nome)
+    .sort((a,b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+
+  produtosOrdenados.forEach(p=>{
+    produtosPorCodigo[p.codigo] = p;
+    produtosPorLabel[labelProduto(p)] = p.codigo;
+  });
+
+  const dl = document.getElementById('datalist-produtos');
+  dl.innerHTML = produtosOrdenados.map(p => `<option value="${labelProduto(p)}"></option>`).join('');
+
+  if(produtosOrdenados.length === 0){
+    const totalBruto = Object.keys(val).length;
+    showToast(totalBruto > 0 ? `${totalBruto} produtos encontrados, mas sem campo de nome reconhecido` : 'Nenhum produto cadastrado no ERP ainda');
+  }
+}, err=>{
+  showToast('Erro ao ler produtos: ' + err.message);
+});
+
+function codigoPeloTexto(texto){
+  if(produtosPorLabel[texto]) return produtosPorLabel[texto];
+  // se o usuário digitou só o código no início (ex: "500030")
+  const codigoDigitado = (texto || '').split('·')[0].trim();
+  if(produtosPorCodigo[codigoDigitado]) return codigoDigitado;
+  return null;
+}
+
+// ---------- linhas de produto no envio de transferência ----------
+const produtosRowsEl = document.getElementById('trf-produtos-rows');
+function criarLinhaProduto(){
+  const row = document.createElement('div');
+  row.className = 'produto-row';
+  row.innerHTML = `
+    <input type="text" class="row-produto" list="datalist-produtos" placeholder="Digite parte do nome..." autocomplete="off">
+    <input class="row-qtd" type="number" step="0.01" min="0" placeholder="Qtd">
+    <button type="button" class="row-remove">✕</button>
+  `;
+  row.querySelector('.row-remove').addEventListener('click', ()=>{
+    if(produtosRowsEl.children.length > 1) row.remove();
+  });
+  produtosRowsEl.appendChild(row);
+}
+document.getElementById('btn-add-produto').addEventListener('click', criarLinhaProduto);
+criarLinhaProduto();
+
+function coletarLinhasProduto(){
+  const linhas = [];
+  produtosRowsEl.querySelectorAll('.produto-row').forEach(row=>{
+    const texto = row.querySelector('.row-produto').value;
+    const codigo = codigoPeloTexto(texto);
+    const qtd = parseFloat(row.querySelector('.row-qtd').value);
+    if(codigo && qtd > 0){
+      const info = produtosPorCodigo[codigo] || {};
+      linhas.push({ produtoCodigo: codigo, produto: info.nome || codigo, quantidade: qtd });
+    }
+  });
+  return linhas;
+}
+function resetarLinhasProduto(){
+  produtosRowsEl.innerHTML = '';
+  criarLinhaProduto();
+}
+
+// ---------- tipo de envio (transferência normal x devolução de cliente) ----------
+setupSeg('trf-tipoenvio-seg');
+document.getElementById('trf-tipoenvio-seg').querySelectorAll('button').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    const ehDevolucao = segValue('trf-tipoenvio-seg') === 'devolucao';
+    document.getElementById('trf-devolucao-nota').style.display = ehDevolucao ? 'flex' : 'none';
+    document.getElementById('trf-origem-wrap').style.display = ehDevolucao ? 'none' : 'block';
+    document.getElementById('trf-destino-wrap').style.display = ehDevolucao ? 'none' : 'block';
+  });
+});
+
+// ---------- destino dinâmico ----------
+function atualizarDestino(){
+  const origem = segValue('trf-origem-seg');
+  const destinoSel = document.getElementById('trf-destino');
+  destinoSel.innerHTML = '';
+  if(origem === 'Caxias'){
+    destinoSel.innerHTML = `
+      <option value="Sede">Sede (produto serigrafado)</option>
+      <option value="SJM">São João de Meriti (precisa rotulagem)</option>
+      <option value="PC">PC</option>`;
+  } else {
+    destinoSel.innerHTML = `
+      <option value="Sede">Sede</option>
+      <option value="PC">PC</option>`;
+  }
+  atualizarHint();
+}
+document.getElementById('trf-destino').addEventListener('change', atualizarHint);
+function atualizarHint(){
+  const origem = segValue('trf-origem-seg');
+  const destino = document.getElementById('trf-destino').value;
+  const hint = document.getElementById('trf-tipo-hint');
+  if(destino === 'PC'){
+    hint.innerHTML = `<span class="tag sede">Envio para PC</span> Desconta do estoque de ${unidadeLabel(origem)}, não entra no estoque da Sede`;
+  } else if(origem === 'Caxias' && destino === 'SJM'){
+    hint.innerHTML = `<span class="tag sjm">Rotulagem em SJM antes de seguir p/ Sede</span>`;
+  } else if(origem === 'Caxias' && destino === 'Sede'){
+    hint.innerHTML = `<span class="tag caxias">Serigrafado — vai direto</span>`;
+  } else {
+    hint.innerHTML = `<span class="tag sjm">Produção própria de SJM</span>`;
+  }
+}
+atualizarDestino();
+
+// ---------- datas padrão ----------
+document.getElementById('prod-data').value = todayStr();
+document.getElementById('trf-data').value = todayStr();
+document.getElementById('trf-hora').value = new Date().toTimeString().slice(0,5);
+
+// ---------- confirmação antes de gravar ----------
+let acaoPendente = null; // { tipo: 'producao'|'transferencia', entry, onOk }
+
+function pedirConfirmacao(titulo, linhas, aoConfirmar){
+  document.getElementById('confirm-save-titulo').textContent = titulo;
+  document.getElementById('confirm-save-resumo').innerHTML = linhas.map(l=>`<div>${l}</div>`).join('');
+  acaoPendente = aoConfirmar;
+  document.getElementById('confirm-save-overlay').style.display = 'flex';
+}
+function fecharConfirmacao(){
+  document.getElementById('confirm-save-overlay').style.display = 'none';
+  acaoPendente = null;
+}
+document.getElementById('btn-confirm-save-cancelar').addEventListener('click', fecharConfirmacao);
+document.getElementById('btn-confirm-save').addEventListener('click', ()=>{
+  if(acaoPendente) acaoPendente();
+  fecharConfirmacao();
+});
+
+// ---------- form produção ----------
+document.getElementById('form-producao').addEventListener('submit', e=>{
+  e.preventDefault();
+  if(!sessaoUsuario){ abrirLogin(); return; }
+  const codigoSelecionado = codigoPeloTexto(document.getElementById('prod-produto').value);
+  if(!codigoSelecionado){
+    showToast('Escolha um produto da lista de sugestões');
+    return;
+  }
+  const produtoInfo = produtosPorCodigo[codigoSelecionado] || {};
+  const entry = {
+    unidade: segValue('prod-unidade-seg'),
+    turno: segValue('prod-turno-seg'),
+    lider: sessaoUsuario.nome,
+    data: document.getElementById('prod-data').value,
+    quantidade: parseFloat(document.getElementById('prod-qtd').value),
+    produtoCodigo: codigoSelecionado,
+    produto: produtoInfo.nome || codigoSelecionado,
+    criadoEm: Date.now()
+  };
+  pedirConfirmacao('Confirmar produção', [
+    `<strong>${entry.produto}</strong>`,
+    `Quantidade: ${fmtNum(entry.quantidade)}`,
+    `${unidadeLabel(entry.unidade)} · ${entry.turno}º turno`,
+    `Data: ${fmtDate(entry.data)}`,
+    `Líder: ${entry.lider}`
+  ], ()=>{
+    refProducao.push(entry).then(()=>{
+      showToast('Produção lançada');
+      registrarLog('Produção lançada', `${entry.produto} · ${fmtNum(entry.quantidade)} · ${unidadeLabel(entry.unidade)} · ${entry.turno}º turno`);
+      document.getElementById('prod-qtd').value = '';
+      document.getElementById('prod-produto').value = '';
+    }).catch(err=>showToast('Erro: '+err.message));
+  });
+});
+
+
+// ---------- form transferência ----------
+document.getElementById('form-transferencia').addEventListener('submit', e=>{
+  e.preventDefault();
+  if(!sessaoUsuario){ abrirLogin(); return; }
+  const ehDevolucao = segValue('trf-tipoenvio-seg') === 'devolucao';
+  const origem = ehDevolucao ? 'Caxias' : segValue('trf-origem-seg');
+  const destino = ehDevolucao ? 'Sede' : document.getElementById('trf-destino').value;
+  let tipo = 'produção própria';
+  if(ehDevolucao) tipo = 'devolução de cliente';
+  else if(destino === 'PC') tipo = 'envio pc';
+  else if(origem === 'Caxias' && destino === 'SJM') tipo = 'rotulagem';
+  else if(origem === 'Caxias' && destino === 'Sede') tipo = 'serigrafado';
+
+  const linhas = coletarLinhasProduto();
+  if(linhas.length === 0){
+    showToast('Adicione ao menos um produto com quantidade');
+    return;
+  }
+
+  const base = {
+    origem, destino, tipo,
+    isDevolucao: ehDevolucao,
+    data: document.getElementById('trf-data').value,
+    hora: document.getElementById('trf-hora').value,
+    motorista: document.getElementById('trf-motorista').value.trim(),
+    romaneio: '',
+    status: destino === 'Sede' ? 'Aguardando conferência' : 'Recebido',
+    responsavelEnvio: sessaoUsuario.nome,
+    responsavelRecebimento: ''
+  };
+  const envioId = 'envio_' + Date.now();
+
+  const linhasResumo = linhas.map(l => `${l.produto} — ${fmtNum(l.quantidade)}`);
+  pedirConfirmacao(ehDevolucao ? 'Confirmar devolução' : 'Confirmar transferência', [
+    ehDevolucao ? `<strong>Devolução de cliente</strong>` : `${unidadeLabel(base.origem)} → ${unidadeLabel(base.destino)}`,
+    ehDevolucao ? `Caxias → Sede (não desconta estoque de Caxias)` : '',
+    `Data: ${fmtDate(base.data)} ${base.hora}`,
+    `Motorista: ${base.motorista}`,
+    `<strong>${linhas.length} produto(s):</strong>`,
+    ...linhasResumo
+  ].filter(Boolean), ()=>{
+    const escritas = linhas.map(l => refTransferencias.push({
+      ...base, ...l, envioId, criadoEm: Date.now()
+    }));
+    Promise.all(escritas).then(()=>{
+      showToast(ehDevolucao ? 'Devolução registrada' : 'Transferência registrada');
+      refLog.push({
+        usuario: sessaoUsuario.nome,
+        acao: ehDevolucao ? 'Devolução registrada' : 'Transferência registrada',
+        detalhe: `${linhas.length} produto(s) · ${unidadeLabel(base.origem)} → ${unidadeLabel(base.destino)}`,
+        timestamp: Date.now()
+      });
+      resetarLinhasProduto();
+      document.getElementById('trf-motorista').value = '';
+    }).catch(err=>showToast('Erro: '+err.message));
+  });
+});
+
+// ---------- excluir lançamentos ----------
+document.getElementById('lista-producao').addEventListener('click', e=>{
+  const btn = e.target.closest('[data-del-producao]');
+  if(!btn) return;
+  const id = btn.dataset.delProducao;
+  const v = producaoCache[id];
+  if(!v) return;
+  if(confirm(`Excluir o lançamento de "${v.produto}" (${fmtNum(v.quantidade)}) em ${fmtDate(v.data)}?`)){
+    refProducao.child(id).remove().then(()=>{
+      registrarLog('Produção excluída', `${v.produto} · ${fmtNum(v.quantidade)} · ${unidadeLabel(v.unidade)} · ${v.turno}º turno`);
+      showToast('Lançamento excluído');
+    }).catch(err=>showToast('Erro ao excluir: '+err.message));
+  }
+});
+document.getElementById('lista-transferencias').addEventListener('click', e=>{
+  const btn = e.target.closest('[data-del-transferencia]');
+  if(!btn) return;
+  const id = btn.dataset.delTransferencia;
+  const v = transferenciasCache[id];
+  if(!v) return;
+  if(confirm(`Excluir a transferência de "${v.produto}" (${fmtNum(v.quantidade)}) de ${unidadeLabel(v.origem)} para ${unidadeLabel(v.destino)}?`)){
+    refTransferencias.child(id).remove().then(()=>{
+      refLog.push({
+        usuario: sessaoUsuario ? sessaoUsuario.nome : 'Não identificado',
+        acao: 'Transferência excluída',
+        detalhe: `${v.produto} · ${fmtNum(v.quantidade)} · ${unidadeLabel(v.origem)} → ${unidadeLabel(v.destino)}`,
+        timestamp: Date.now()
+      });
+      showToast('Transferência excluída');
+    }).catch(err=>showToast('Erro ao excluir: '+err.message));
+  }
+});
+
+// ---------- listas ----------
+document.getElementById('prod-filtro-unidade').addEventListener('change', renderProducao);
+
+refProducao.on('value', snap=>{
+  producaoCache = snap.val() || {};
+  renderProducao();
+  renderEstoque();
+});
+refTransferencias.on('value', snap=>{
+  transferenciasCache = snap.val() || {};
+  renderTransferencias();
+  renderEstoque();
+  renderConferencia();
+});
+refLog.on('value', snap=>{
+  logCache = snap.val() || {};
+  renderLog();
+});
+refAjustes.on('value', snap=>{
+  ajustesCache = snap.val() || {};
+  renderEstoque();
+});
+
+function renderProducao(){
+  const filtro = document.getElementById('prod-filtro-unidade').value;
+  const list = document.getElementById('lista-producao');
+  let items = Object.entries(producaoCache);
+  if(filtro) items = items.filter(([id,v])=>v.unidade === filtro);
+  items.sort((a,b)=> (b[1].criadoEm||0) - (a[1].criadoEm||0));
+  items = items.slice(0, 40);
+  if(items.length === 0){
+    list.innerHTML = '<div class="empty">Nenhum lançamento ainda.</div>';
+    return;
+  }
+  list.innerHTML = items.map(([id,v])=>`
+    <div class="entry">
+      <div class="entry-top">
+        <span class="entry-title">${v.produto || '—'}</span>
+        <span class="entry-actions">
+          <span class="entry-qty num">${fmtNum(v.quantidade)}</span>
+          <button class="entry-del" data-del-producao="${id}">Excluir</button>
+        </span>
+      </div>
+      <div class="entry-meta">
+        <span class="tag ${tagClass(v.unidade)}">${unidadeLabel(v.unidade)}</span>
+        <span>${v.turno}º turno</span>
+        <span>${v.lider||'—'}</span>
+        <span>${fmtDate(v.data)}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderTransferencias(){
+  const list = document.getElementById('lista-transferencias');
+  let items = Object.entries(transferenciasCache);
+
+  // agrupa por envioId (envios antigos sem envioId viram um grupo próprio cada)
+  const grupos = [];
+  const porId = {};
+  items.forEach(([id,v])=>{
+    const chave = v.envioId || ('solo_'+id);
+    if(!porId[chave]){
+      const chaveOrdenacao = `${v.data||''} ${v.hora||'00:00'}`;
+      const grupo = { chave, chaveOrdenacao, criadoEm: v.criadoEm||0, base: v, linhas: [] };
+      porId[chave] = grupo;
+      grupos.push(grupo);
+    }
+    porId[chave].linhas.push([id,v]);
+  });
+  // ordena pela data/hora que a pessoa digitou; empates usam o horário de gravação
+  grupos.sort((a,b)=> b.chaveOrdenacao.localeCompare(a.chaveOrdenacao) || (b.criadoEm - a.criadoEm));
+  const visiveis = grupos.slice(0, 25);
+
+  if(visiveis.length === 0){
+    list.innerHTML = '<div class="empty">Nenhuma transferência ainda.</div>';
+    return;
+  }
+  list.innerHTML = visiveis.map(g=>{
+    const v = g.base;
+    const linhasHtml = g.linhas.map(([id,item])=>`
+      <div class="entry-top" style="margin-top:6px;">
+        <span class="entry-title" style="font-weight:600; font-size:13.5px;">${item.produto || '—'}</span>
+        <span class="entry-actions">
+          <span class="entry-qty num">${fmtNum(item.quantidade)}</span>
+          <button class="entry-del" data-del-transferencia="${id}">Excluir</button>
+        </span>
+      </div>
+    `).join('');
+    return `
+    <div class="entry">
+      <div class="entry-meta">
+        <span class="tag ${tagClass(v.origem)}">${unidadeLabel(v.origem)}</span>
+        <span>→</span>
+        <span class="tag ${tagClass(v.destino)}">${unidadeLabel(v.destino)}</span>
+        <span class="tag ${statusClass(v.status)}">${v.status||'Pendente'}</span>
+      </div>
+      <div class="entry-meta">
+        <span>${fmtDate(v.data)}${v.hora ? ' · '+v.hora : ''}</span>
+        ${v.motorista ? `<span>Motorista: ${v.motorista}</span>` : ''}
+      </div>
+      ${linhasHtml}
+    </div>
+  `;
+  }).join('');
+}
+
+function porProduto(map){
+  const out = {};
+  Object.values(map).forEach(v=>{
+    const p = v.produto || 'Sem nome';
+    out[p] = (out[p]||0) + Number(v.quantidade||0);
+  });
+  return out;
+}
+function renderStockList(elId, obj, unidadeAjuste){
+  const el = document.getElementById(elId);
+  const entries = Object.entries(obj).filter(([,q])=>Math.abs(q) > 0.0001);
+  entries.sort((a,b)=>b[1]-a[1]);
+  if(entries.length===0){ el.innerHTML = '<div class="stock-row"><span>Sem dados ainda</span></div>'; return; }
+  el.innerHTML = entries.map(([p,q])=>{
+    const btn = unidadeAjuste ? `<button class="stock-adjust" data-ajustar="1" data-produto="${p.replace(/"/g,'&quot;')}" data-unidade="${unidadeAjuste}" data-atual="${q}">ajustar</button>` : '';
+    return `<div class="stock-row"><span>${p}</span><span style="display:flex; align-items:center; gap:8px;"><span class="num">${fmtNum(q)}</span>${btn}</span></div>`;
+  }).join('');
+}
+function handleAjustarClick(e){
+  const btn = e.target.closest('[data-ajustar]');
+  if(!btn) return;
+  if(!sessaoUsuario){ abrirLogin(); return; }
+  const produto = btn.dataset.produto;
+  const unidade = btn.dataset.unidade;
+  const atual = parseFloat(btn.dataset.atual);
+  const real = prompt(`Ajuste de inventário\n${produto} — ${unidadeLabel(unidade)}\n\nSaldo calculado atual: ${fmtNum(atual)}\nDigite a quantidade REAL contada:`, fmtNum(atual));
+  if(real === null) return;
+  const realNum = parseFloat(String(real).replace(',','.'));
+  if(isNaN(realNum)){ showToast('Valor inválido'); return; }
+  const delta = realNum - atual;
+  if(Math.abs(delta) < 0.0001){ showToast('Nenhuma diferença a ajustar'); return; }
+  refAjustes.push({
+    unidade, produto, quantidade: delta,
+    motivo: 'Ajuste de inventário',
+    usuario: sessaoUsuario.nome,
+    data: todayStr(),
+    criadoEm: Date.now()
+  }).then(()=>{
+    registrarLog('Ajuste de estoque', `${produto} · ${unidadeLabel(unidade)} · ${fmtNum(atual)} → ${fmtNum(realNum)}`);
+    showToast('Estoque ajustado');
+  }).catch(err=>showToast('Erro ao ajustar: '+err.message));
+}
+document.getElementById('saldo-caxias-lista').addEventListener('click', handleAjustarClick);
+document.getElementById('saldo-sjm-lista').addEventListener('click', handleAjustarClick);
+
+function renderEstoque(){
+  const prodValues = Object.values(producaoCache);
+  const trfValues = Object.values(transferenciasCache);
+  const ajusteValues = Object.values(ajustesCache);
+
+  // Caxias: produzido - tudo que saiu de Caxias (exceto devoluções, que não descontam) + ajustes de inventário
+  const producaoCaxias = {};
+  prodValues.filter(v=>v.unidade==='Caxias').forEach(v=>{
+    producaoCaxias[v.produto] = (producaoCaxias[v.produto]||0) + Number(v.quantidade||0);
+  });
+  trfValues.filter(v=>v.origem==='Caxias' && !v.isDevolucao).forEach(v=>{
+    producaoCaxias[v.produto] = (producaoCaxias[v.produto]||0) - Number(v.quantidade||0);
+  });
+  ajusteValues.filter(v=>v.unidade==='Caxias').forEach(v=>{
+    producaoCaxias[v.produto] = (producaoCaxias[v.produto]||0) + Number(v.quantidade||0);
+  });
+  renderStockList('saldo-caxias-lista', producaoCaxias, 'Caxias');
+  document.getElementById('saldo-caxias-total').textContent = fmtNum(Object.values(producaoCaxias).reduce((a,b)=>a+b,0));
+
+  // SJM: produzido + recebido de Caxias - enviado (Sede/PC) + ajustes de inventário
+  const saldoSjm = {};
+  prodValues.filter(v=>v.unidade==='SJM').forEach(v=>{
+    saldoSjm[v.produto] = (saldoSjm[v.produto]||0) + Number(v.quantidade||0);
+  });
+  trfValues.filter(v=>v.destino==='SJM').forEach(v=>{
+    saldoSjm[v.produto] = (saldoSjm[v.produto]||0) + Number(v.quantidade||0);
+  });
+  trfValues.filter(v=>v.origem==='SJM').forEach(v=>{
+    saldoSjm[v.produto] = (saldoSjm[v.produto]||0) - Number(v.quantidade||0);
+  });
+  ajusteValues.filter(v=>v.unidade==='SJM').forEach(v=>{
+    saldoSjm[v.produto] = (saldoSjm[v.produto]||0) + Number(v.quantidade||0);
+  });
+  renderStockList('saldo-sjm-lista', saldoSjm, 'SJM');
+  document.getElementById('saldo-sjm-total').textContent = fmtNum(Object.values(saldoSjm).reduce((a,b)=>a+b,0));
+
+  // Sede: recebimentos JÁ CONFERIDOS (inclui devoluções, que também passam pela conferência) — PC nunca conta aqui
+  const sedeRecebido = {};
+  trfValues.filter(v=>v.destino==='Sede' && v.status==='Conferido').forEach(v=>{
+    const key = v.isDevolucao ? `${v.produto} · devolução de cliente` : `${v.produto} · de ${unidadeLabel(v.origem)}`;
+    const qtd = (v.quantidadeConferida !== undefined && v.quantidadeConferida !== null) ? v.quantidadeConferida : v.quantidade;
+    sedeRecebido[key] = (sedeRecebido[key]||0) + Number(qtd||0);
+  });
+  renderStockList('saldo-sede-lista', sedeRecebido);
+  const pendentes = trfValues.filter(v=>v.destino==='Sede' && v.status==='Aguardando conferência').length;
+  const notaPendente = document.getElementById('saldo-sede-pendente-nota');
+  if(notaPendente) notaPendente.textContent = pendentes > 0 ? `${pendentes} item(ns) aguardando conferência na Sede` : '';
+}
+
+function renderLog(){
+  const list = document.getElementById('lista-log');
+  let items = Object.entries(logCache);
+  items.sort((a,b)=> (b[1].timestamp||0) - (a[1].timestamp||0));
+  items = items.slice(0, 30);
+  if(items.length === 0){
+    list.innerHTML = '<div class="empty">Nenhuma atividade registrada ainda.</div>';
+    return;
+  }
+  list.innerHTML = items.map(([id,v])=>{
+    const d = new Date(v.timestamp);
+    const hora = d.toLocaleString('pt-BR', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'});
+    return `
+    <div class="entry">
+      <div class="entry-top">
+        <span class="entry-title">${v.acao}</span>
+        <span style="font-size:11px; color:var(--ink-soft);">${hora}</span>
+      </div>
+      <div class="entry-meta">
+        <span>${v.usuario}</span>
+        <span>${v.detalhe||''}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ---------- conferência na Sede ----------
+function renderConferencia(){
+  const pendListEl = document.getElementById('lista-conferencia-pendente');
+  const feitasListEl = document.getElementById('lista-conferencia-feita');
+  if(!pendListEl || !feitasListEl) return;
+
+  const itensSede = Object.entries(transferenciasCache).filter(([,v]) => v.destino === 'Sede');
+
+  const legado = itensSede.filter(([,v]) => v.status === 'Recebido');
+  const cardLegado = document.getElementById('card-corrigir-legado');
+  if(cardLegado){
+    const contagemEl = document.getElementById('contagem-legado');
+    if(legado.length === 0){
+      contagemEl.textContent = 'Nenhum registro antigo pendente de correção.';
+      document.getElementById('btn-corrigir-legado').style.display = 'none';
+    } else {
+      contagemEl.textContent = `${legado.length} envio(s) pra Sede ainda marcados como "Recebido" direto, sem ter passado pela conferência.`;
+      document.getElementById('btn-corrigir-legado').style.display = '';
+    }
+  }
+
+  const pendentes = itensSede.filter(([,v]) => v.status === 'Aguardando conferência');
+  pendentes.sort((a,b)=> (a[1].criadoEm||0) - (b[1].criadoEm||0));
+  if(pendentes.length === 0){
+    pendListEl.innerHTML = '<div class="empty">Nada pendente. Tudo conferido!</div>';
+  } else {
+    pendListEl.innerHTML = pendentes.map(([id,v])=>`
+      <div class="entry">
+        <div class="entry-top">
+          <span class="entry-title">${v.produto || '—'}</span>
+          <span class="entry-actions">
+            <span class="entry-qty num">${fmtNum(v.quantidade)}</span>
+            <button class="entry-del" style="text-decoration:none; background:var(--sede); color:#fff; padding:5px 10px; border-radius:20px;" data-conferir="${id}">Conferir</button>
+          </span>
+        </div>
+        <div class="entry-meta">
+          <span class="tag ${tagClass(v.origem)}">${unidadeLabel(v.origem)}</span>
+          ${v.isDevolucao ? `<span class="tag sede">Devolução</span>` : ''}
+          <span>${fmtDate(v.data)}${v.hora ? ' · '+v.hora : ''}</span>
+          ${v.motorista ? `<span>Motorista: ${v.motorista}</span>` : ''}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  const feitas = itensSede.filter(([,v]) => v.status === 'Conferido');
+  feitas.sort((a,b)=> (b[1].dataConferenciaEm||b[1].criadoEm||0) - (a[1].dataConferenciaEm||a[1].criadoEm||0));
+  const feitasVisiveis = feitas.slice(0, 25);
+  if(feitasVisiveis.length === 0){
+    feitasListEl.innerHTML = '<div class="empty">Nenhuma conferência feita ainda.</div>';
+  } else {
+    feitasListEl.innerHTML = feitasVisiveis.map(([id,v])=>{
+      const divergiu = v.quantidadeConferida !== undefined && Number(v.quantidadeConferida) !== Number(v.quantidade);
+      return `
+      <div class="entry">
+        <div class="entry-top">
+          <span class="entry-title">${v.produto || '—'}</span>
+          <span class="entry-qty num" style="${divergiu ? 'color:var(--caxias);' : ''}">${fmtNum(v.quantidadeConferida !== undefined ? v.quantidadeConferida : v.quantidade)}</span>
+        </div>
+        <div class="entry-meta">
+          <span class="tag ${tagClass(v.origem)}">${unidadeLabel(v.origem)}</span>
+          ${v.isDevolucao ? `<span class="tag sede">Devolução</span>` : ''}
+          ${divergiu ? `<span style="color:var(--caxias); font-weight:700;">saiu ${fmtNum(v.quantidade)}</span>` : ''}
+          <span>Conferido por ${v.responsavelRecebimento || '—'}</span>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  const devListEl = document.getElementById('lista-devolucoes');
+  if(devListEl){
+    const devolucoes = itensSede.filter(([,v]) => v.isDevolucao);
+    devolucoes.sort((a,b)=> (b[1].criadoEm||0) - (a[1].criadoEm||0));
+    const devVisiveis = devolucoes.slice(0, 25);
+    if(devVisiveis.length === 0){
+      devListEl.innerHTML = '<div class="empty">Nenhuma devolução registrada ainda.</div>';
+    } else {
+      devListEl.innerHTML = devVisiveis.map(([id,v])=>`
+        <div class="entry">
+          <div class="entry-top">
+            <span class="entry-title">${v.produto || '—'}</span>
+            <span class="entry-qty num">${fmtNum(v.quantidadeConferida !== undefined ? v.quantidadeConferida : v.quantidade)}</span>
+          </div>
+          <div class="entry-meta">
+            <span class="tag ${statusClass(v.status)}">${v.status||'Pendente'}</span>
+            <span>${fmtDate(v.data)}${v.hora ? ' · '+v.hora : ''}</span>
+            ${v.motorista ? `<span>Motorista: ${v.motorista}</span>` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+}
+
+document.getElementById('lista-conferencia-pendente').addEventListener('click', e=>{
+  const btn = e.target.closest('[data-conferir]');
+  if(!btn) return;
+  if(!sessaoUsuario || !temAcesso(sessaoUsuario.perfil, 'sede')){ abrirLogin(); return; }
+  const id = btn.dataset.conferir;
+  const v = transferenciasCache[id];
+  if(!v) return;
+  const real = prompt(`Conferindo: ${v.produto}\nQuantidade que saiu de ${unidadeLabel(v.origem)}: ${fmtNum(v.quantidade)}\n\nDigite a quantidade REAL recebida:`, fmtNum(v.quantidade));
+  if(real === null) return;
+  const realNum = parseFloat(String(real).replace(',','.'));
+  if(isNaN(realNum)){ showToast('Valor inválido'); return; }
+  refTransferencias.child(id).update({
+    status: 'Conferido',
+    quantidadeConferida: realNum,
+    responsavelRecebimento: sessaoUsuario.nome,
+    dataConferenciaEm: Date.now()
+  }).then(()=>{
+    const divergiu = realNum !== Number(v.quantidade);
+    registrarLog('Conferência na Sede', `${v.produto} · saiu ${fmtNum(v.quantidade)} → recebido ${fmtNum(realNum)}${divergiu ? ' (DIVERGÊNCIA)' : ''}`);
+    showToast(divergiu ? 'Conferido com divergência registrada' : 'Conferido — quantidade confere');
+  }).catch(err=>showToast('Erro ao conferir: '+err.message));
+});
+
+document.getElementById('btn-corrigir-legado').addEventListener('click', ()=>{
+  if(!sessaoUsuario || sessaoUsuario.perfil !== 'admin'){ showToast('Só o Admin pode fazer essa correção'); return; }
+  const legado = Object.entries(transferenciasCache).filter(([,v]) => v.destino === 'Sede' && v.status === 'Recebido');
+  if(legado.length === 0){ showToast('Nada pra corrigir'); return; }
+  if(!confirm(`Mover ${legado.length} envio(s) antigo(s) para "Aguardando conferência"?\n\nEles vão sumir do saldo da Sede até alguém conferir na aba Sede.`)) return;
+  const updates = {};
+  legado.forEach(([id])=>{ updates[id + '/status'] = 'Aguardando conferência'; });
+  refTransferencias.update(updates).then(()=>{
+    registrarLog('Correção em lote', `${legado.length} envio(s) movido(s) de "Recebido" para "Aguardando conferência"`);
+    showToast(`${legado.length} envio(s) corrigido(s)`);
+  }).catch(err=>showToast('Erro ao corrigir: '+err.message));
+});
+
+// ---------- cadastro de novos usuários ----------
+function cadastrarUsuario(nomeInputId, pinInputId, perfil, perfilSelectId){
+  if(!sessaoUsuario || sessaoUsuario.perfil !== 'admin'){ showToast('Só o Admin pode adicionar usuários'); return; }
+  const nomeEl = document.getElementById(nomeInputId);
+  const pinEl = document.getElementById(pinInputId);
+  const nome = nomeEl.value.trim();
+  const pin = pinEl.value.trim();
+  const perfilFinal = perfilSelectId ? document.getElementById(perfilSelectId).value : perfil;
+
+  if(!nome){ showToast('Digite o nome'); return; }
+  if(!/^\d{4}$/.test(pin)){ showToast('PIN precisa ter 4 dígitos'); return; }
+  const jaExiste = Object.values(usuariosCache).some(u => u.nome.toLowerCase() === nome.toLowerCase());
+  if(jaExiste){ showToast('Já existe um usuário com esse nome'); return; }
+
+  refUsuarios.push({ nome, pin, perfil: perfilFinal }).then(()=>{
+    registrarLog('Usuário cadastrado', `${nome} · acesso ${perfilFinal === 'sede' ? 'Sede' : 'Fábrica'}`);
+    showToast(`Usuário "${nome}" criado com PIN ${pin}`);
+    nomeEl.value = '';
+    pinEl.value = '';
+  }).catch(err=>showToast('Erro ao cadastrar: '+err.message));
+}
+document.getElementById('btn-add-usuario-fabrica').addEventListener('click', ()=>{
+  cadastrarUsuario('novo-usuario-nome', 'novo-usuario-pin', null, 'novo-usuario-perfil');
+});
+document.getElementById('btn-add-usuario-sede').addEventListener('click', ()=>{
+  cadastrarUsuario('novo-usuario-sede-nome', 'novo-usuario-sede-pin', 'sede', null);
+});
+
+// ---------- gerenciar usuários existentes ----------
+function renderListaUsuarios(){
+  const elFabrica = document.getElementById('lista-usuarios-fabrica');
+  const elSede = document.getElementById('lista-usuarios-sede');
+  const todos = Object.entries(usuariosCache).sort((a,b)=> a[1].nome.localeCompare(b[1].nome, 'pt-BR'));
+
+  if(elFabrica){
+    if(todos.length === 0){
+      elFabrica.innerHTML = '<div class="empty">Nenhum usuário cadastrado.</div>';
+    } else {
+      elFabrica.innerHTML = todos.map(([id,u])=>`
+        <div class="entry">
+          <div class="entry-top">
+            <span class="entry-title">${u.nome}</span>
+            <span class="tag ${u.perfil === 'sede' ? 'sede' : u.perfil === 'admin' ? 'sjm' : 'caxias'}">${labelPerfil(u.perfil)}</span>
+          </div>
+          <div class="entry-meta" style="margin-top:8px; gap:10px;">
+            <button class="entry-del" data-editar-pin="${id}">Trocar PIN</button>
+            <button class="entry-del" data-trocar-perfil="${id}">Trocar área</button>
+            <button class="entry-del" data-remover-usuario="${id}">Remover</button>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+
+  if(elSede){
+    const sedeUsers = todos.filter(([,u]) => u.perfil === 'sede');
+    if(sedeUsers.length === 0){
+      elSede.innerHTML = '<div class="empty">Nenhum usuário da Sede cadastrado.</div>';
+    } else {
+      elSede.innerHTML = sedeUsers.map(([id,u])=>`
+        <div class="entry">
+          <div class="entry-top">
+            <span class="entry-title">${u.nome}</span>
+          </div>
+          <div class="entry-meta" style="margin-top:8px; gap:10px;">
+            <button class="entry-del" data-editar-pin="${id}">Trocar PIN</button>
+            <button class="entry-del" data-remover-usuario="${id}">Remover</button>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+}
+refUsuarios.on('value', ()=>{ renderListaUsuarios(); });
+
+function handleUsuariosClick(e){
+  const btnPin = e.target.closest('[data-editar-pin]');
+  const btnPerfil = e.target.closest('[data-trocar-perfil]');
+  const btnRemover = e.target.closest('[data-remover-usuario]');
+  if((btnPin || btnPerfil || btnRemover) && (!sessaoUsuario || sessaoUsuario.perfil !== 'admin')){
+    showToast('Só o Admin pode gerenciar usuários');
+    return;
+  }
+
+  if(btnPin){
+    const id = btnPin.dataset.editarPin;
+    const u = usuariosCache[id];
+    if(!u) return;
+    const novoPin = prompt(`Novo PIN de 4 dígitos para ${u.nome}:`, u.pin);
+    if(novoPin === null) return;
+    if(!/^\d{4}$/.test(novoPin)){ showToast('PIN precisa ter 4 dígitos'); return; }
+    refUsuarios.child(id).update({ pin: novoPin }).then(()=>{
+      registrarLog('PIN alterado', `${u.nome}`);
+      showToast('PIN atualizado');
+    }).catch(err=>showToast('Erro: '+err.message));
+  }
+
+  if(btnPerfil){
+    const id = btnPerfil.dataset.trocarPerfil;
+    const u = usuariosCache[id];
+    if(!u) return;
+    const escolha = prompt(`Área de acesso de ${u.nome} (atual: ${labelPerfil(u.perfil)})\n\nDigite: fabrica, sede ou admin`, u.perfil || 'fabrica');
+    if(escolha === null) return;
+    const novoPerfil = escolha.trim().toLowerCase();
+    if(!['fabrica','sede','admin'].includes(novoPerfil)){ showToast('Digite fabrica, sede ou admin'); return; }
+    refUsuarios.child(id).update({ perfil: novoPerfil }).then(()=>{
+      registrarLog('Área de acesso alterada', `${u.nome} → ${labelPerfil(novoPerfil)}`);
+      showToast('Área de acesso atualizada');
+    }).catch(err=>showToast('Erro: '+err.message));
+  }
+
+  if(btnRemover){
+    const id = btnRemover.dataset.removerUsuario;
+    const u = usuariosCache[id];
+    if(!u) return;
+    if(!confirm(`Remover o acesso de ${u.nome}? Essa ação não pode ser desfeita.`)) return;
+    refUsuarios.child(id).remove().then(()=>{
+      registrarLog('Usuário removido', u.nome);
+      showToast('Usuário removido');
+    }).catch(err=>showToast('Erro: '+err.message));
+  }
+}
+document.getElementById('lista-usuarios-fabrica').addEventListener('click', handleUsuariosClick);
+document.getElementById('lista-usuarios-sede').addEventListener('click', handleUsuariosClick);
+</script>
+</body>
+</html>
